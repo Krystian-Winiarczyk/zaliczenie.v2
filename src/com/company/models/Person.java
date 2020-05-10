@@ -1,6 +1,8 @@
 package com.company.models;
 
-public class Person {
+import java.io.Serializable;
+
+public class Person implements Serializable {
     private String fname, lname, email;
 
     public Person(String fname, String lname, String email) {

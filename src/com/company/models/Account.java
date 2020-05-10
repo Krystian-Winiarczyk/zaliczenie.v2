@@ -1,6 +1,8 @@
 package com.company.models;
 
-public class Account {
+import java.io.Serializable;
+
+public class Account implements Serializable {
     private String accountNumber;
     private Person owner;
     private Double balance;

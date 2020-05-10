@@ -1,4 +1,7 @@
-package com.company.models;
+package com.company;
+
+import com.company.models.Account;
+import com.company.models.Person;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -8,10 +11,10 @@ import java.util.Scanner;
 public class Bank {
     private Scanner sc = new Scanner(System.in);
 
-    private String name;
+    private BankNames name;
     private Deque<Account> accounts = new ArrayDeque<>();
 
-    public Bank(String name) {
+    public Bank(BankNames name) {
         this.name = name;
     }
 
@@ -51,6 +54,8 @@ public class Bank {
     public void transfer(Account transferFrom, String numberToTransfer, Double amount) {
         if ((transferFrom.getBalance() - amount) < 0) {
             System.out.println("Lack of account funds");
+        } else if (amount < 0) {
+            System.out.println("Amount can't be negative value");
         } else {
             Optional<Account> didAccountExist = this.accounts.stream()
                     .filter(account -> account.getAccountNumber().equals(numberToTransfer))
@@ -65,4 +70,27 @@ public class Bank {
             }
         }
     }
+
+    public BankNames getName() {
+        return name;
+    }
+
+    public Deque<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(Deque<Account> accounts) {
+        this.accounts = accounts;
+    }
+
+    @Override
+    public String toString() {
+        return "Bank{" +
+                "name=" + name +
+                '}';
+    }
+}
+
+enum BankNames {
+    ING, MILLENNIUM, SANTANDER, PKO;
 }
