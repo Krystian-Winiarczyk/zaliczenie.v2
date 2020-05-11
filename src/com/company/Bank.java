@@ -18,20 +18,45 @@ public class Bank {
         this.name = name;
     }
 
-    public void createNewBankAccount(Person owner, String password, String login) {
-        Account newAccount = new Account(owner, login, password);
-        this.accounts.add(newAccount);
+//    public void createNewBankAccount(Person owner, String password, String login) {
+//        Account newAccount = new Account(owner, login, password);
+//        this.accounts.add(newAccount);
+//    }
+
+    public Account createNewBankAccount() {
+        System.out.println("Name: ");
+        String name = this.sc.next();
+        System.out.println("Surname: ");
+        String surname = this.sc.next();
+        System.out.println("Email: ");
+        String email = this.sc.next();
+        System.out.println("Account login: ");
+        String login = this.sc.next();
+        System.out.println("Account password: ");
+        String password = this.sc.next();
+        Optional<Account> findedAccount = this.accounts.stream()
+                .filter(account -> account.getLogin().equals(login) || account.getOwner().getEmail().equals(email))
+                .findAny();
+
+        if (findedAccount.isPresent()) {
+            System.out.println("Account with that login or email already exist");
+            return null;
+        } else {
+            Account account = new Account(new Person(name, surname, email), login, password);
+            account.setLoggedIn(true);
+            this.accounts.add(account);
+            return account;
+        }
     }
 
     public Account login() {
-
         System.out.println("Login: ");
         String login = this.sc.next();
         System.out.println("Password: ");
         String password = this.sc.next();
 
         Optional<Account> findedAccount = this.accounts.stream()
-                .filter(account1 -> account1.getLogin().equals(login) && account1.getPassword().equals(password))
+                .filter(account -> account.getLogin().equals(login) && account.getPassword().equals(password))
                 .findFirst();
 
         Account account = findedAccount.orElseThrow();

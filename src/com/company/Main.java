@@ -1,69 +1,66 @@
 package com.company;
 
 import com.company.models.Account;
-import com.company.models.Person;
 
 import java.io.*;
 import java.util.*;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Bank bank = new Bank(null);
-        System.out.println("Select Bank: ");
-        System.out.println("(1) Ing");
-        System.out.println("(2) Millennium");
-        System.out.println("(3) Santander");
-        System.out.println("(4) Pko");
+        boolean bankSelection = true;
 
-        switch (new Scanner(System.in).nextInt()) {
-            case 1: bank = new Bank(BankNames.ING);
-            break;
-            case 2: bank = new Bank(BankNames.MILLENNIUM);
-            break;
-            case 3: bank = new Bank(BankNames.SANTANDER);
-            break;
-            case 4: bank = new Bank(BankNames.PKO);
-            break;
-            default: System.out.println("wtf");
-        }
+        while (bankSelection) {
+            boolean authSelection = true;
 
-        if (!loadAccountsFromFile(bank)) return;
-
-//        bank.createNewBankAccount(new Person("Adam", "Nowak", "pwkk12@wp.pl"), "sara1234", "adamiak321");
-//        bank.createNewBankAccount(new Person("Kamil", "Stasica", "mewa12@gmail.com"), "mewaa12", "pwkk12");
-//        bank.createNewBankAccount(new Person("Dariusz", "Robercik", "robson2@wp.pl"), "rosbon300", "ramen003");
-
-        Account loggedInAccount = bank.login();
-
-        while (loggedInAccount.isLoggedIn()) {
-            System.out.println("(1) Transfer");
-            System.out.println("(2) Account Details");
-            System.out.println("(3) Available accounts");
-            System.out.println("(4) Logout");
+            System.out.println("Select Bank: ");
+            System.out.println("(1) Ing");
+            System.out.println("(2) Millennium");
+            System.out.println("(3) Santander");
+            System.out.println("(4) Pko");
+            System.out.println("(0) Exit");
 
             switch (new Scanner(System.in).nextInt()) {
-                case 1:
-                    transferCreator(bank, loggedInAccount);
+                case 1: bank = new Bank(BankNames.ING);
                     break;
-                case 2:
-                    System.out.println(loggedInAccount.toString());
+                case 2: bank = new Bank(BankNames.MILLENNIUM);
                     break;
-                case 3:
-                    bank.printAccounts();
+                case 3: bank = new Bank(BankNames.SANTANDER);
                     break;
-                case 4:
-                    bank.logout(loggedInAccount);
+                case 4: bank = new Bank(BankNames.PKO);
                     break;
-                default:
-                    System.out.println("Error !");
-                    return;
+                case 0: bankSelection = false;
+                    break;
+                default: System.out.println("wtf");
+            }
+
+            loadAccountsFromFile(bank);
+            while (authSelection) {
+                System.out.println("(1) Create New Account");
+                if (bank.getAccounts().size() != 0) System.out.println("(2) Login");
+                System.out.println("(0) Back");
+
+                Account account = switch (new Scanner(System.in).nextInt()) {
+                    case 1 -> bank.createNewBankAccount();
+                    case 2 -> bank.login();
+                    case 0 -> {
+                        authSelection = false;
+                        yield null;
+                    }
+                    default -> null;
+                };
+
+                if (account != null) {
+                    accountMenagment(bank, account);
+                    saveBankData(bank);
+                }
             }
         }
-//        saveBankData(bank);
     }
 
     private static void saveBankData(Bank selectedBank) {
+        System.out.println("Zapis");
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(selectedBank.getName() + ".txt", true);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
@@ -77,6 +74,7 @@ public class Main {
     }
 
     private static boolean loadAccountsFromFile(Bank selectedBank) {
+        System.out.println("Wczytanie");
         try {
             FileInputStream fileInputStream = new FileInputStream(selectedBank.getName() + ".txt");
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
@@ -89,6 +87,32 @@ public class Main {
         }
     }
 
+    private static void accountMenagment(Bank bank, Account loggedInAccount) {
+        while (loggedInAccount.isLoggedIn()) {
+            System.out.println("(1) Transfer");
+            System.out.println("(2) Account Details");
+            System.out.println("(3) Available accounts");
+            System.out.println("(0) Logout");
+
+            switch (new Scanner(System.in).nextInt()) {
+                case 1:
+                    transferCreator(bank, loggedInAccount);
+                    break;
+                case 2:
+                    System.out.println(loggedInAccount.toString());
+                    break;
+                case 3:
+                    bank.printAccounts();
+                    break;
+                case 0:
+                    bank.logout(loggedInAccount);
+                    break;
+                default:
+                    System.out.println("Error !");
+                    return;
+            }
+        }
+    }
 
     private static void transferCreator(Bank bank, Account currentAccount) {
         Scanner sc = new Scanner(System.in);
