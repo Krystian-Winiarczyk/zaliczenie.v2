@@ -1,7 +1,5 @@
 package com.company;
 
-import com.company.models.Account;
-
 import java.io.*;
 import java.util.*;
 
@@ -30,13 +28,17 @@ public class Main {
                     break;
                 case 4: bank = new Bank(BankNames.PKO);
                     break;
-                case 0: bankSelection = false;
+                case 0:
+                    bankSelection = false;
+                    authSelection = false;
                     break;
-                default: System.out.println("wtf");
+                default:
+                    authSelection = false;
+                    System.out.println("Error ");
             }
 
-            loadAccountsFromFile(bank);
             while (authSelection) {
+                new Files().loadDataFromFile(bank);
                 System.out.println("(1) Create New Account");
                 if (bank.getAccounts().size() != 0) System.out.println("(2) Login");
                 System.out.println("(0) Back");
@@ -53,55 +55,54 @@ public class Main {
 
                 if (account != null) {
                     accountMenagment(bank, account);
-                    saveBankData(bank);
+                    new Files().saveDataToFile(bank);
                 }
             }
         }
     }
 
-    private static void saveBankData(Bank selectedBank) {
-        System.out.println("Zapis");
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream(selectedBank.getName() + ".txt", true);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(selectedBank.getAccounts());
-
-            fileOutputStream.close();
-            objectOutputStream.close();
-        } catch (Exception e) {
-            System.out.println(e.getStackTrace());
-        }
-    }
-
-    private static boolean loadAccountsFromFile(Bank selectedBank) {
-        System.out.println("Wczytanie");
-        try {
-            FileInputStream fileInputStream = new FileInputStream(selectedBank.getName() + ".txt");
-            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-            Deque<Account> accounts = (Deque<Account>) objectInputStream.readObject();
-            selectedBank.setAccounts(accounts);
-            return true;
-        } catch (Exception e) {
-            System.out.println(e.getStackTrace());
-            return false;
-        }
-    }
+//    private static void saveDataToFile(Bank selectedBank) {
+//        try {
+//            FileOutputStream fileOutputStream = new FileOutputStream(selectedBank.getName() + ".txt");
+//            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+//            objectOutputStream.writeObject(selectedBank.getAccounts());
+//
+//            fileOutputStream.close();
+//            objectOutputStream.close();
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//    }
+//
+//    private static void loadDataFromFile(Bank selectedBank) {
+//        try {
+//            FileInputStream fileInputStream = new FileInputStream(selectedBank.getName() + ".txt");
+//            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+//            Deque<Account> accounts = (Deque<Account>) objectInputStream.readObject();
+//            selectedBank.setAccounts(accounts);
+//        } catch (Exception e) {
+//            System.out.println(e.getStackTrace());
+//        }
+//    }
 
     private static void accountMenagment(Bank bank, Account loggedInAccount) {
         while (loggedInAccount.isLoggedIn()) {
             System.out.println("(1) Transfer");
-            System.out.println("(2) Account Details");
-            System.out.println("(3) Available accounts");
+            System.out.println("(2) Transfer To Other Bank");
+            System.out.println("(3) Account Details");
+            System.out.println("(4) Available accounts");
             System.out.println("(0) Logout");
 
             switch (new Scanner(System.in).nextInt()) {
                 case 1:
-                    transferCreator(bank, loggedInAccount);
+                    bank.transfer(loggedInAccount, bank.getAccounts());
                     break;
-                case 2:
-                    System.out.println(loggedInAccount.toString());
+                case 2: bank.transferToOtherBank(loggedInAccount);
                     break;
                 case 3:
+                    System.out.println(loggedInAccount.toString());
+                    break;
+                case 4:
                     bank.printAccounts();
                     break;
                 case 0:
@@ -112,15 +113,5 @@ public class Main {
                     return;
             }
         }
-    }
-
-    private static void transferCreator(Bank bank, Account currentAccount) {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Account number to transfer");
-        String number = sc.next();
-        System.out.println("Transaction Amount");
-        Double amount = sc.nextDouble();
-
-        bank.transfer(currentAccount, number, amount);
     }
 }

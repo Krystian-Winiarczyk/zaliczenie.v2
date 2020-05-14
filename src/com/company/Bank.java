@@ -1,8 +1,6 @@
 package com.company;
 
-import com.company.models.Account;
-import com.company.models.Person;
-
+import java.io.*;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
@@ -10,18 +8,12 @@ import java.util.Scanner;
 
 public class Bank {
     private Scanner sc = new Scanner(System.in);
-
     private BankNames name;
     private Deque<Account> accounts = new ArrayDeque<>();
 
     public Bank(BankNames name) {
         this.name = name;
     }
-
-//    public void createNewBankAccount(Person owner, String password, String login) {
-//        Account newAccount = new Account(owner, login, password);
-//        this.accounts.add(newAccount);
-//    }
 
     public Account createNewBankAccount() {
         System.out.println("Name: ");
@@ -76,13 +68,54 @@ public class Bank {
         System.out.println("Account logged out");
     }
 
-    public void transfer(Account transferFrom, String numberToTransfer, Double amount) {
+    public void transferToOtherBank(Account transferFrom) {
+        try {
+            for (BankNames name : BankNames.values()) {
+                if (name != this.name) System.out.println(name);
+            }
+            Bank bankToTransfer = new Bank(BankNames.valueOf(new Scanner(System.in).next().toUpperCase()));
+            if (bankToTransfer.name == this.name) this.transfer(transferFrom, this.accounts);
+            else {
+                new Files().loadDataFromFile(bankToTransfer);
+//                if ((transferFrom.getBalance() - amount) < 0) {
+//                    System.out.println("Lack of account funds");
+//                } else if (amount < 0) {
+//                    System.out.println("Amount can't be negative value");
+//                } else {
+//                    Optional<Account> didAccountExist = bankToTransfer.accounts.stream()
+//                            .filter(account -> account.getAccountNumber().equals(numberToTransfer))
+//                            .findFirst();
+//
+//                    if (didAccountExist.isPresent()) {
+//                        Account accountToTransfer = didAccountExist.get();
+//                        transferFrom.setBalance(transferFrom.getBalance() - amount);
+//                        accountToTransfer.setBalance(accountToTransfer.getBalance() + amount);
+//                    } else {
+//                        System.out.println("Account to transfer didn't exist");
+//                    }
+//                }
+                this.transfer(transferFrom, bankToTransfer.accounts);
+                new Files().saveDataToFile(bankToTransfer);
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Wrong bank name !");
+        }
+
+    }
+
+    public void transfer(Account transferFrom, Deque<Account> accounts) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Account number to transfer");
+        String numberToTransfer = sc.next();
+        System.out.println("Transaction Amount");
+        Double amount = sc.nextDouble();
+
         if ((transferFrom.getBalance() - amount) < 0) {
             System.out.println("Lack of account funds");
         } else if (amount < 0) {
             System.out.println("Amount can't be negative value");
         } else {
-            Optional<Account> didAccountExist = this.accounts.stream()
+            Optional<Account> didAccountExist = accounts.stream()
                     .filter(account -> account.getAccountNumber().equals(numberToTransfer))
                     .findFirst();
 
