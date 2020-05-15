@@ -3,7 +3,7 @@ package com.company;
 import java.io.Serializable;
 
 public class Account implements Serializable {
-    private String accountNumber;
+    private final String accountNumber;
     private Person owner;
     private Double balance;
     private boolean isLoggedIn;
@@ -21,10 +21,6 @@ public class Account implements Serializable {
 
     public String getAccountNumber() {
         return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
     }
 
     public Person getOwner() {

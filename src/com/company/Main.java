@@ -1,6 +1,5 @@
 package com.company;
 
-import java.io.*;
 import java.util.*;
 
 public class Main {
@@ -54,55 +53,36 @@ public class Main {
                 };
 
                 if (account != null) {
-                    accountMenagment(bank, account);
+                    accountManagement(bank, account);
                     new Files().saveDataToFile(bank);
                 }
             }
         }
     }
 
-//    private static void saveDataToFile(Bank selectedBank) {
-//        try {
-//            FileOutputStream fileOutputStream = new FileOutputStream(selectedBank.getName() + ".txt");
-//            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-//            objectOutputStream.writeObject(selectedBank.getAccounts());
-//
-//            fileOutputStream.close();
-//            objectOutputStream.close();
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
-//
-//    private static void loadDataFromFile(Bank selectedBank) {
-//        try {
-//            FileInputStream fileInputStream = new FileInputStream(selectedBank.getName() + ".txt");
-//            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-//            Deque<Account> accounts = (Deque<Account>) objectInputStream.readObject();
-//            selectedBank.setAccounts(accounts);
-//        } catch (Exception e) {
-//            System.out.println(e.getStackTrace());
-//        }
-//    }
-
-    private static void accountMenagment(Bank bank, Account loggedInAccount) {
+    private static void accountManagement(Bank bank, Account loggedInAccount) {
         while (loggedInAccount.isLoggedIn()) {
             System.out.println("(1) Transfer");
             System.out.println("(2) Transfer To Other Bank");
-            System.out.println("(3) Account Details");
-            System.out.println("(4) Available accounts");
+            System.out.println("(3) Payment");
+            System.out.println("(4) Account Details");
+            System.out.println("(5) Available accounts");
             System.out.println("(0) Logout");
 
             switch (new Scanner(System.in).nextInt()) {
                 case 1:
                     bank.transfer(loggedInAccount, bank.getAccounts());
                     break;
-                case 2: bank.transferToOtherBank(loggedInAccount);
+                case 2:
+                    bank.transferToOtherBank(loggedInAccount);
                     break;
                 case 3:
-                    System.out.println(loggedInAccount.toString());
+                    bank.paymentOnAccount(loggedInAccount);
                     break;
                 case 4:
+                    System.out.println(loggedInAccount.toString());
+                    break;
+                case 5:
                     bank.printAccounts();
                     break;
                 case 0:

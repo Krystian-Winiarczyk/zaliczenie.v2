@@ -1,10 +1,6 @@
 package com.company;
 
-import java.io.*;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 public class Bank {
     private Scanner sc = new Scanner(System.in);
@@ -51,7 +47,7 @@ public class Bank {
                 .filter(account -> account.getLogin().equals(login) && account.getPassword().equals(password))
                 .findFirst();
 
-        Account account = findedAccount.orElseThrow();
+        Account account = findedAccount.orElseThrow(NoSuchElementException::new);
         account.setLoggedIn(true);
 
         return account;
@@ -77,30 +73,12 @@ public class Bank {
             if (bankToTransfer.name == this.name) this.transfer(transferFrom, this.accounts);
             else {
                 new Files().loadDataFromFile(bankToTransfer);
-//                if ((transferFrom.getBalance() - amount) < 0) {
-//                    System.out.println("Lack of account funds");
-//                } else if (amount < 0) {
-//                    System.out.println("Amount can't be negative value");
-//                } else {
-//                    Optional<Account> didAccountExist = bankToTransfer.accounts.stream()
-//                            .filter(account -> account.getAccountNumber().equals(numberToTransfer))
-//                            .findFirst();
-//
-//                    if (didAccountExist.isPresent()) {
-//                        Account accountToTransfer = didAccountExist.get();
-//                        transferFrom.setBalance(transferFrom.getBalance() - amount);
-//                        accountToTransfer.setBalance(accountToTransfer.getBalance() + amount);
-//                    } else {
-//                        System.out.println("Account to transfer didn't exist");
-//                    }
-//                }
                 this.transfer(transferFrom, bankToTransfer.accounts);
                 new Files().saveDataToFile(bankToTransfer);
             }
         } catch (IllegalArgumentException e) {
             System.out.println("Wrong bank name !");
         }
-
     }
 
     public void transfer(Account transferFrom, Deque<Account> accounts) {
@@ -123,10 +101,17 @@ public class Bank {
                 Account accountToTransfer = didAccountExist.get();
                 transferFrom.setBalance(transferFrom.getBalance() - amount);
                 accountToTransfer.setBalance(accountToTransfer.getBalance() + amount);
+
+                new Transfer(transferFrom.toString(), accountToTransfer.toString(), new Date(), amount);
             } else {
                 System.out.println("Account to transfer didn't exist");
             }
         }
+    }
+
+    public void paymentOnAccount(Account paymentAccount) {
+        System.out.println("Payment Amount");
+        paymentAccount.setBalance(paymentAccount.getBalance() + new Scanner(System.in).nextDouble());
     }
 
     public BankNames getName() {
